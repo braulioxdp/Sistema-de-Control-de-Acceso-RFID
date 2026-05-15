@@ -1,0 +1,44 @@
+<?php
+$host = "localhost";
+$user = "root";
+$pass = "";
+$db = "horario_alumnos";
+
+$conn = new mysqli("localhost", "root", "", "horario_alumnos");
+if ($conn->connect_error) {
+    die("Error de conexión");
+}
+
+$uid = $_POST['uid'];
+$result = $conn->query("SELECT Datos FROM accesodealumnos WHERE UID = '$uid'");
+
+if ($result->num_rows > 0) {
+    $fila = $result->fetch_assoc();
+    $datos = explode(" ", strtolower($fila['Datos']));
+    
+    $grado = $datos[3];
+    $turno = $datos[4];
+    $carrera = $datos[5];
+
+    $tabla = "horario_" . $carrera . "_" . $grado . "_" . $turno;
+
+    $dia = date("w");
+    $columnas = ["", "LUNES", "MARTES", "MIERCOLES", "JUEVES", "VIERNES", "SABADO"];
+    $columnaDia = $columnas[$dia];
+
+    $horaActual = date("H:i:s");
+
+    $query = "SELECT * FROM `$tabla` WHERE HORA > '$horaActual' AND `$columnaDia` != ''";
+    $res = $conn->query($query);
+
+    if ($res->num_rows > 0) {
+        echo "0";
+    } else {
+        echo "1";
+    }
+} else {
+    echo "0";
+}
+
+$conn->close();
+?>
